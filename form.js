@@ -470,6 +470,8 @@
           drawRow('', 'Der Mieter hat folgende Schlüssel zurückgegeben:');
         } else if (section.title === 'Zählerstände') {
           drawRow('', 'Folgende Zählerstände wurden bei der Wohnungsabnahme von beiden Parteien abgelesen:');
+        } else if (section.title === 'Neue Anschrift des Mieters') {
+          drawRow('', 'Dem Mieter ist bekannt, dass ihm die Betriebskostenrechnung an seine neue Anschrift übersandt wird, und dass er etwaige Nachzahlungen noch zu begleichen haben wird.');
         }
 
         rows.forEach(([lab, val]) => drawRow(lab, val));
