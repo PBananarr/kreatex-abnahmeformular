@@ -336,8 +336,8 @@
       "title": "Neue Anschrift des Mieters",
       "fields": [
         {"label": "Name", "name": "neue_name", "type": "text"},
-        {"label": "Straße", "name": "neue_strasse", "type": "text"},
-        {"label": "Wohnort", "name": "neue_wohnort", "type": "text"},
+        {"label": "Straße, Hausnummer", "name": "neue_strasse", "type": "text"},
+        {"label": "Postleitzahl, Wohnort", "name": "neue_wohnort", "type": "text"},
         {"label": "Telefonnummer", "name": "neue_tel", "type": "text"},
         {"label": "Kontoverbindung", "name": "neue_konto", "type": "text"}
       ]
