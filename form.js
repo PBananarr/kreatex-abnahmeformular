@@ -1,5 +1,3 @@
-// form.js
-
 (function () {
   const sections = Array.isArray(window.form_sections) ? window.form_sections : [];
   const root = document.getElementById('sections-root');
@@ -492,6 +490,127 @@
 
       drawH2('Unterschriften');
 
+      // Parameter
+const gap = 20;                          // Abstand zwischen den Feldern
+const fieldH = 90;                       // Höhe der Unterschriftsfelder
+const borderW = 1;
+const labelSize = 9;                     // Schriftgröße für Label
+const labelPadX = 6;                     // horizontales Padding hinter Label
+const labelPadY = 2;                     // vertikales Padding hinter Label
+const textLineGap = 2;                   // Zeilenabstand fürs Label
+
+// Hilfsfunktionen
+const measure = (txt, size=labelSize) => font.widthOfTextAtSize(txt, size);
+const draw = (txt, x, y, size=10) => drawText(txt, x, y, size);
+
+// Einfache Wort-Umbrech-Funktion auf Basis der verfügbaren Breite
+function wrapText(txt, maxWidth, size=labelSize) {
+  const words = txt.split(/\s+/);
+  const lines = [];
+  let line = '';
+
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (measure(test, size) <= maxWidth) {
+      line = test;
+    } else {
+      if (line) lines.push(line);
+      line = w;
+    }
+  }
+  if (line) lines.push(line);
+  // Max. zwei Zeilen für sauberes Layout
+  if (lines.length > 2) {
+    // Falls zu lang: zweite Zeile „…“
+    const ellipsis = '…';
+    let l2 = lines[1];
+    while (measure(l2 + ellipsis, size) > maxWidth && l2.length > 0) {
+      l2 = l2.slice(0, -1);
+    }
+    lines[1] = l2 + ellipsis;
+    return lines.slice(0, 2);
+  }
+  return lines;
+}
+
+// Layout-Berechnung
+const halfW = (pageWidth - 2*pageMargin - gap) / 2;
+const boxTopY = y - 16;                  // Start knapp unter der Überschrift/Datum
+const leftX = x;
+const rightX = x + halfW + gap;
+
+// Zeichnet ein Feld mit zentriertem „Legend“-Label
+function drawSignatureField(boxX, boxY, boxW, boxH, labelText) {
+  // 1) Rahmen
+  page.drawRectangle({
+    x: boxX,
+    y: boxY - boxH,
+    width: boxW,
+    height: boxH,
+    borderWidth: borderW,
+    borderColor: rgb(0, 0, 0)
+  });
+
+  // 2) Label (zentriert oben, „Legend“-Stil: weißen Hintergrund über Rahmen ziehen)
+  const labelMaxW = boxW * 0.9; // etwas Rand
+  const lines = wrapText(labelText, labelMaxW, labelSize);
+
+  // Gesamthöhe des Labels
+  const lineHeight = labelSize + textLineGap;
+  const labelBlockH = lines.length * lineHeight - textLineGap;
+
+  // Label-Baseline (innen am oberen Rand)
+  const firstLineBaselineY = boxY - labelPadY - labelSize; // Text sitzt knapp unter dem oberen Rahmen
+
+  // Weißer Hintergrund, um den Rahmen zu „unterbrechen“
+  // Breite = breiteste Zeile + Padding
+  const widest = Math.max(...lines.map(l => measure(l, labelSize)));
+  const bgW = widest + 2*labelPadX;
+  const bgX = boxX + (boxW - bgW)/2;
+  const bgY = boxY - labelPadY - labelBlockH - (labelSize - 7); // kleine Feinjustierung
+
+  page.drawRectangle({
+    x: bgX,
+    y: bgY,
+    width: bgW,
+    height: labelBlockH + labelPadY*2,
+    color: rgb(1, 1, 1) // Weiß über dem Rahmen
+  });
+
+  // 3) Textzeilen zentriert zeichnen
+  let lineY = firstLineBaselineY;
+  for (const l of lines) {
+    const w = measure(l, labelSize);
+    draw(l, boxX + (boxW - w)/2, lineY, labelSize);
+    lineY -= lineHeight;
+  }
+
+  // Optional: eine Signatur-Linie im Feld (falls gewünscht)
+  const signLineY = boxY - boxH + 22;
+  page.drawLine({
+    start: { x: boxX + 20, y: signLineY },
+    end:   { x: boxX + boxW - 20, y: signLineY },
+    thickness: 0.8,
+    color: rgb(0, 0, 0)
+  });
+}
+
+// Felder zeichnen
+drawRow('', header); // wie bei dir
+drawSignatureField(
+  leftX,  boxTopY, halfW, fieldH,
+  'Unterschrift des Vermieters bzw. seines Bevollmächtigten'
+);
+drawSignatureField(
+  rightX, boxTopY, halfW, fieldH,
+  'Unterschrift des Mieters bzw. seines Bevollmächtigten'
+);
+
+// Platz nach unten reservieren
+y = boxTopY - fieldH - 24;
+
+
+/*
       const half = (pageWidth - 2*pageMargin) / 2;
       drawRow('', header);
 
@@ -507,6 +626,7 @@
       center('Unterschrift des Vermieters bzw. seines Bevollmächtigten', x + (half - 10)/2);
       center('Unterschrift des Mieters bzw. seines Bevollmächtigten', x + half + 10 + (half - 10)/2);
 
+*/
       // Ausgabe
       const pdfBytes = await pdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
