@@ -219,7 +219,7 @@
     const select = form.querySelector('select[name="ohne_beanstandungen"]');
     if (!select) return;
 
-    // Container, in den wir das dynamische Feld einfügen (direkt NACH der Select-Zeile)
+    // Dynamisches Feld bei Auswahl "Nein"
     const selectRow = select.closest('.form-group');
 
     const ensureMaengelTextarea = () => {
@@ -257,7 +257,7 @@
 
     select.addEventListener('change', onChange);
 
-    // Initialzustand (z.B. nach Restore aus LocalStorage)
+    // Initialzustand
     onChange();
   })();
 
@@ -361,12 +361,12 @@
     const drawFooterForAllPages = (pdf, font) => {
       const pages = pdf.getPages();
       const fs = 9;                 // Schriftgröße Footer
-      const textY = 10;             // Y-Position der Seitenzahl (Nahe Seitenrand unten)
+      const textY = 10;             // Y-Position der Seitenzahl
       const lineY = MARGIN - 6;     // Trennlinie knapp unterhalb des Inhaltsbereichs
 
       pages.forEach((p, i) => {
         const total = pages.length;
-        // zweistellig mit führender 0, wie gewünscht "XX von YY"
+        // Format Seite XX von YY
         const cur = String(i + 1).padStart(2, '0');
         const tot = String(total).padStart(2, '0');
         const label = `Seite ${cur} von ${tot}`;
@@ -472,7 +472,7 @@
         // Farbband oben
         page.drawRectangle({ x: 0, y: PAGE_H - 6, width: PAGE_W, height: 6, color: COLOR_PRIMARY });
 
-        // Logo skalieren (Seitenverhältnis beibehalten), oben links
+        // Logo skalieren, oben links
         let logoW = 0, logoH = 0;
         if (logoImg) {
           const s = Math.min(1, LOGO_MAX_W / logoNaturalW, LOGO_MAX_H / logoNaturalH);
@@ -480,13 +480,13 @@
           logoH = Math.max(0, logoNaturalH * s);
           page.drawImage(logoImg, {
             x: MARGIN,
-            y: PAGE_H - MARGIN - logoH + 6,  // leicht ins Farbband ziehen
+            y: PAGE_H - MARGIN - logoH + 6,
             width: logoW,
             height: logoH
           });
         }
 
-        // Titel (rechts davon ausrichten, kollisionsfrei)
+        // Titel, rechts von Logo, kollisionsfrei)
         const title = 'Wohnungsabnahmeprotokoll';
         const tSize = 18;
         const tW = textW(title, tSize, true);
@@ -530,7 +530,7 @@
         }
       };
 
-      // ersetzt wrap(...) – erhält Enter-Zeilenumbrüche
+      // Enter-Zeilenumbrüche
       const wrap = (txt, maxW, size = 10, bold = false) => {
         const paras = String(txt ?? '')
           .replace(/\r\n/g, '\n')
@@ -592,7 +592,7 @@
         cursorY -= h + 6;
       };
 
-      // 2-Spalten-Tabelle (ohne eigenes Ensure – wir messen vorher)
+      // 2-Spalten-Tabelle
       const drawKVTable = (rows) => {
         if (!rows.length) return;
 
@@ -646,7 +646,7 @@
         return i === 0 ? v : undefined;
       };
 
-      // ===== Inhalt aus deinen form_sections =====
+      // ===== Inhalt aus form_sections =====
       window.form_sections.forEach(section => {
         const rows = [];
 
@@ -668,7 +668,6 @@
               if (liste) {
                 rows.push(['Die Wohnung weist folgende Mängel auf', liste]);
               }
-              // Danach folgen die restlichen (statischen) Felder wie gewohnt
             }
           }
         }
@@ -676,7 +675,6 @@
         // feste Felder
         if (!(isMaengel && skipOtherFieldsInThisSection)) {
           (section.fields || []).forEach(f => {
-            // Die Select-Zeile der Mängelregelung wurde oben bereits behandelt
             if (isMaengel && f.name === 'ohne_beanstandungen') return;
 
             const v = data[f.name];
@@ -774,8 +772,8 @@
 
       const topY = cursorY - 6;
       const drawSignBox = (x, y, w, h, legend) => {
-        const PAD_TOP = 12;      // mehr Luft nach oben -> Text ragt nicht über den Rahmen
-        const PAD_X = 14;      // seitlicher Innenabstand
+        const PAD_TOP = 12;      
+        const PAD_X = 14;     
         const fs = 9;
 
         // Rahmen
@@ -787,11 +785,11 @@
         // Label-Zeilen mit Padding umbrechen
         const lines = wrap(legend, w - 2 * PAD_X, fs, true);
 
-        // Start-Baseline deutlich unter dem oberen Rand
-        let baseline = y - PAD_TOP - fs; // Baseline; Oberkante bleibt sicher frei
+        // Start-Baseline
+        let baseline = y - PAD_TOP - fs; 
         lines.forEach(line => {
           const lw = textW(line, fs, true);
-          const cx = x + (w - lw) / 2;   // echte Zentrierung innerhalb des gesamten Feldes
+          const cx = x + (w - lw) / 2;   
           drawText(line, cx, baseline, fs, COLOR_TEXT, true);
           baseline -= (fs + 2);
         });
@@ -810,7 +808,7 @@
       cursorY = topY - fieldH - 30;
 
       // ===== Ausgabe
-      // Footer (Trennlinie + Seitenzahlen) nachträglich auf alle Seiten zeichnen
+      // Footer (Trennlinie + Seitenzahlen)
       drawFooterForAllPages(pdf, fontRegular);
 
       const pdfBytes = await pdf.save();
