@@ -729,7 +729,7 @@
 
         // Einleitungszeile
         const introMap = {
-          'Schlüsselrückgabe': 'Der Mieter hat folgende Schlüssel zurückgegeben:',
+          //'Schlüsselrückgabe': 'Der Mieter hat folgende Schlüssel zurückgegeben:',
           'Zählerstände': 'Folgende Zählerstände wurden bei der Wohnungsabnahme von beiden Parteien abgelesen:',
           'Neue Anschrift des Mieters': 'Dem Mieter ist bekannt, dass die Betriebskostenrechnung an seine neue Anschrift übersandt wird und etwaige Nachzahlungen zu begleichen sind.'
         };
