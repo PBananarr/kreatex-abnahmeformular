@@ -1,4 +1,4 @@
-const CACHE_NAME = 'übergabe-cache-v3.0.2.';
+const CACHE_NAME = 'abnahme-cache-v3.0.0.';
 const ASSETS = [
   './',
   './index.html',
@@ -18,6 +18,7 @@ self.addEventListener('message', event => {
     event.source.postMessage({ type: 'version', version: CACHE_NAME });
   }
 });
+
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
