@@ -169,7 +169,7 @@ window.form_sections = [
           "label": "Art der Böden",
           "name": "boeden_bad",
           "type": "select",
-          "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+          "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
         },
         {
           "label": "Art der Wände",
@@ -309,7 +309,7 @@ window.form_sections = [
           "label": "Art der Böden",
           "name": "boden_kueche",
           "type": "select",
-          "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+          "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
         },
         {
           "label": "Art der Wände",
@@ -397,7 +397,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_flur", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_flur", "type": "select",
@@ -413,7 +413,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_wohnzimmer", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_wohnzimmer", "type": "select",
@@ -429,7 +429,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_schlafzimmer", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_schlafzimmer", "type": "select",
@@ -445,7 +445,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_kinderzimmer", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_kinderzimmer", "type": "select",
@@ -461,7 +461,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_balkon", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_balkon", "type": "select",
@@ -477,7 +477,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_keller_dachboden", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_keller_dachboden", "type": "select",
@@ -493,7 +493,7 @@ window.form_sections = [
         "fields": [
           {
             "label": "Art der Böden", "name": "boden_garage_carport", "type": "select",
-            "options": ["Venyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
+            "options": ["Vinyl", "Laminat", "PVC-Belag", "Fliesen", "Parkett"]
           },
           {
             "label": "Art der Wände", "name": "waende_garage_carport", "type": "select",

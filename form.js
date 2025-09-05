@@ -11,10 +11,47 @@
     return n;
   };
 
+  // simple uid counter for input IDs
+  let __uid = 0;
+  const uid = (prefix = 'f') => `${prefix}_${(++__uid).toString(36)}`;
+
+  // iPad-/Tastatur-Hilfen + dezimale Eingaben
+  const applyInputHints = (input, name, type) => {
+    const nm = String(name || '').toLowerCase();
+
+    const isDecimal =
+      /betrag|summe|rate|eur|stand/.test(nm) ||             // generisch: *betrag, *summe, *rate, *eur, *stand
+      /_stand$/.test(nm);                                   // z.B. warmwasser_stand, strom_stand
+
+    // Felder, die rein ganzzahlig sind (Zählwerte, IDs)
+    const isInteger =
+      /^anzahl_/.test(nm) ||                                // z.B. anzahl_hausschluessel
+      /(_nr$|_nummer$)/.test(nm);                           // z.B. hausschluessel_nummer
+
+    if (isDecimal) {
+      if (input.tagName === 'INPUT' && input.type === 'number') input.type = 'text';
+      input.inputMode = 'decimal';       // iOS zeigt , an; . lässt sich trotzdem eingeben
+      input.autocomplete = 'off';
+      return;
+    }
+
+    // 2) Integerfelder: echte numerische Tastatur + pattern für reine Ziffern
+    if (type === 'number' || isInteger) {
+      input.inputMode = 'numeric';
+      input.pattern = '\\d*';
+      input.autocomplete = 'off';
+      return;
+    }
+  };
+
   const addLabelInput = (wrap, label, name, type = 'text', preset, options) => {
     const row = el('div', 'form-group');
+
+    // ID erzeugen & Label verknüpfen
+    const id = uid(name);
     const l = el('label');
     l.textContent = label;
+    l.htmlFor = id;
     row.appendChild(l);
 
     let input;
@@ -40,6 +77,9 @@
     }
 
     input.name = name;
+    input.id = id;
+    applyInputHints(input, name, type);
+
     row.appendChild(input);
     wrap.appendChild(row);
   };
@@ -55,6 +95,8 @@
     const def = document.createElement('option');
     def.value = '';
     def.textContent = '-- Feld auswählen --';
+    // (Optional: deaktivieren, wenn du magst)
+    // def.disabled = true; def.hidden = true; def.selected = true;
     sel.appendChild(def);
 
     section.options.forEach(o => {
@@ -161,8 +203,11 @@
             wrap.appendChild(strong);
 
             subfields.forEach(sf => {
+              // Label + ID-Verknüpfung
+              const id = uid(sf.name);
               const lab = document.createElement('label');
               lab.textContent = sf.label;
+              lab.htmlFor = id;
               wrap.appendChild(lab);
 
               let input;
@@ -178,6 +223,8 @@
                 input.type = sf.type || 'text';
               }
               input.name = sf.name;
+              input.id = id;
+              applyInputHints(input, sf.name, sf.type);
               wrap.appendChild(input);
             });
 
@@ -190,13 +237,18 @@
             container.appendChild(wrap);
           } else {
             const row = el('div', 'field-item');
+
+            const id = uid(optEl.value);
             const lab = document.createElement('label');
             lab.textContent = label;
+            lab.htmlFor = id;
             row.appendChild(lab);
 
             const input = document.createElement('input');
             input.name = optEl.value;
             input.type = type || 'text';
+            input.id = id;
+            applyInputHints(input, optEl.value, type);
             row.appendChild(input);
 
             const rm = el('button', 'remove-btn');
@@ -228,17 +280,24 @@
         wrap = document.createElement('div');
         wrap.id = 'maengel_dynamic_wrap';
         wrap.className = 'form-group';
-        // Label
+        // Label + ID
+        const id = uid('maengel_liste');
         const lab = document.createElement('label');
         lab.textContent = 'Die Wohnung weist folgende Mängel auf:';
+        lab.htmlFor = id;
         wrap.appendChild(lab);
         // Textarea
         const ta = document.createElement('textarea');
         ta.name = 'maengel_liste';
+        ta.id = id;
         wrap.appendChild(ta);
 
         // NACH der Select-Zeile einsetzen
-        selectRow.parentNode.insertBefore(wrap, selectRow.nextSibling);
+        if (selectRow && selectRow.parentNode) {
+          selectRow.parentNode.insertBefore(wrap, selectRow.nextSibling);
+        } else {
+          form.appendChild(wrap);
+        }
       }
     };
 
@@ -324,13 +383,20 @@
           wrap = document.createElement('div');
           wrap.id = 'maengel_dynamic_wrap';
           wrap.className = 'form-group';
+          const id = uid('maengel_liste');
           const lab = document.createElement('label');
           lab.textContent = 'Die Wohnung weist folgende Mängel auf:';
+          lab.htmlFor = id;
           wrap.appendChild(lab);
           const ta = document.createElement('textarea');
           ta.name = 'maengel_liste';
+          ta.id = id;
           wrap.appendChild(ta);
-          selectRow.parentNode.insertBefore(wrap, selectRow.nextSibling);
+          if (selectRow && selectRow.parentNode) {
+            selectRow.parentNode.insertBefore(wrap, selectRow.nextSibling);
+          } else {
+            form.appendChild(wrap);
+          }
         }
         const ta = form.querySelector('textarea[name="maengel_liste"]');
         if (ta && typeof data['maengel_liste'] === 'string') ta.value = data['maengel_liste'];
@@ -348,8 +414,8 @@
     const { PDFDocument, StandardFonts, rgb } = PDFLib;
 
     // ==== Farb-/Layout-Vorgaben ====
-    const COLOR_PRIMARY = rgb(0x00 / 255, 0x77 / 255, 0xb6 / 255);      // #0077b6
-    const COLOR_PRIMARY_DARK = rgb(0x02 / 255, 0x3e / 255, 0x8a / 255); // #023e8a
+    const COLOR_PRIMARY = rgb(0x3b / 255, 0x53 / 255, 0x70 / 255);      // #3b5370
+    const COLOR_PRIMARY_DARK = rgb(0x3b / 255, 0x53 / 255, 0x70 / 255); // #3b5370
     const COLOR_SECTION_BG = rgb(0xf7 / 255, 0xfa / 255, 0xff / 255);   // #f7faff
     const COLOR_BORDER = rgb(0xdd / 255, 0xdd / 255, 0xdd / 255);       // #dddddd
     const COLOR_TEXT = rgb(0, 0, 0);
@@ -366,12 +432,10 @@
 
       pages.forEach((p, i) => {
         const total = pages.length;
-        // Format Seite XX von YY
         const cur = String(i + 1).padStart(2, '0');
         const tot = String(total).padStart(2, '0');
         const label = `Seite ${cur} von ${tot}`;
 
-        // leichte graue Trennlinie im Fußbereich
         p.drawLine({
           start: { x: MARGIN, y: lineY },
           end: { x: PAGE_W - MARGIN, y: lineY },
@@ -379,7 +443,6 @@
           color: COLOR_BORDER
         });
 
-        // Seitenzahl unten rechts
         const tw = font.widthOfTextAtSize(label, fs);
         p.drawText(label, {
           x: PAGE_W - MARGIN - tw,
@@ -462,7 +525,6 @@
         console.warn('Logo konnte nicht geladen werden:', e);
       }
 
-
       // ==== Header mit dynamischer Höhe ====
       const drawHeader = () => {
         const LOGO_MAX_W = 90;   // ~3.2 cm
@@ -475,14 +537,26 @@
         // Logo skalieren, oben links
         let logoW = 0, logoH = 0;
         if (logoImg) {
-          const s = Math.min(1, LOGO_MAX_W / logoNaturalW, LOGO_MAX_H / logoNaturalH);
-          logoW = Math.max(0, logoNaturalW * s);
-          logoH = Math.max(0, logoNaturalH * s);
+          const LOGO_H = 40;
+          const scale = LOGO_H / logoImg.height;
+          const LOGO_W = logoImg.width * scale;
+
+          // Titel-Geometrie (wie bisher)
+          const tSize = 18;
+          const titleBaselineY = PAGE_H - MARGIN - 10;
+          const ASCENT = 0.8, DESCENT = 0.2;
+          const titleCenterY = titleBaselineY + (ASCENT - DESCENT) * tSize / 2 - DESCENT * tSize;
+
+          // Feinjustierung: positiver Wert verschiebt nach oben
+          const LOGO_OFFSET_Y = 6;   // ← hier 2–4 px ausprobieren
+
+          const yLogo = titleCenterY - LOGO_H / 2 + LOGO_OFFSET_Y;
+
           page.drawImage(logoImg, {
             x: MARGIN,
-            y: PAGE_H - MARGIN - logoH + 6,
-            width: logoW,
-            height: logoH
+            y: yLogo,
+            width: LOGO_W,
+            height: LOGO_H
           });
         }
 
@@ -496,7 +570,7 @@
         drawText(title, titleX, titleY, tSize, COLOR_PRIMARY_DARK, true);
 
         // feine Linie unter Kopf; Unterkante = unterer Rand von Logo/Titel minus Luft
-        const logoBottom = logoW ? (PAGE_H - MARGIN - logoH + 6) : titleY;
+        const logoBottom = logoW ? (titleY - (logoH - 6)) : titleY;
         const titleBottom = titleY - tSize;
         const contentTopY = Math.min(logoBottom, titleBottom) - 8;
 
@@ -772,8 +846,8 @@
 
       const topY = cursorY - 6;
       const drawSignBox = (x, y, w, h, legend) => {
-        const PAD_TOP = 12;      
-        const PAD_X = 14;     
+        const PAD_TOP = 12;
+        const PAD_X = 14;
         const fs = 9;
 
         // Rahmen
@@ -786,10 +860,10 @@
         const lines = wrap(legend, w - 2 * PAD_X, fs, true);
 
         // Start-Baseline
-        let baseline = y - PAD_TOP - fs; 
+        let baseline = y - PAD_TOP - fs;
         lines.forEach(line => {
           const lw = textW(line, fs, true);
-          const cx = x + (w - lw) / 2;   
+          const cx = x + (w - lw) / 2;
           drawText(line, cx, baseline, fs, COLOR_TEXT, true);
           baseline -= (fs + 2);
         });
@@ -807,38 +881,29 @@
       drawSignBox(MARGIN + halfW + gap, topY, halfW, fieldH, 'Unterschrift des Mieters bzw. seines Bevollmächtigten');
       cursorY = topY - fieldH - 30;
 
-      // ===== Ausgabe
-      // Footer (Trennlinie + Seitenzahlen)
+     // Footer + Download
       drawFooterForAllPages(pdf, fontRegular);
-
       const pdfBytes = await pdf.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const filename = 'Wohnungsabnahmeprotokoll.pdf';
-
-      const file = new File([blob], filename, { type: 'application/pdf' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ title: 'Wohnungsabnahmeprotokoll', text: 'Erstellt mit dem Abnahmeformular', files: [file] });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = filename;
-        document.body.appendChild(a); a.click(); a.remove();
-        URL.revokeObjectURL(url);
-      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'Wohnungsabnahmeprotokoll.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+      try { URL.revokeObjectURL(url); } catch { }
     } catch (err) {
-      console.error(err);
-      alert('PDF-Erstellung fehlgeschlagen.');
+      console.error('PDF-Fehler:', err);
+      alert('PDF-Erstellung fehlgeschlagen. Siehe Konsole für Details.');
     }
   });
 
   if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-  navigator.serviceWorker.controller.postMessage('getVersion');
-  navigator.serviceWorker.addEventListener('message', e => {
-    if (e.data?.type === 'version') {
-      document.getElementById('version-info').textContent = 'Version: ' + e.data.version;
-    }
-  });
-}
+    navigator.serviceWorker.controller.postMessage('getVersion');
+    navigator.serviceWorker.addEventListener('message', e => {
+      if (e.data?.type === 'version') {
+        const vi = document.getElementById('version-info');
+        if (vi) vi.textContent = 'Version: ' + e.data.version;
+      }
+    });
+  }
 
 })();
-
