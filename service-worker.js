@@ -1,4 +1,4 @@
-const CACHE_NAME = 'abnahme-cache-v3.0.1.';
+const CACHE_NAME = 'abnahme-cache-v3.1.0.';
 const ASSETS = [
   './',
   './index.html',
